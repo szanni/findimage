@@ -1,0 +1,37 @@
+.Dd October 2, 2014
+.Dt FINDIMAGE 1
+.Os
+.Sh NAME
+.Nm findimage
+.Nd search for original sources of cropped images and thumbnails
+.Sh SYNOPSIS
+.Nm
+.Ar path
+.Ar object
+.Sh DESCRIPTION
+Search for matching images and for each match print: correlation offset path
+.Pp
+The arguments are as follows:
+.Bl -tag -with Ds
+.It Ar path
+Search path.
+.It Ar object
+Image object to search for.
+.El
+.Pp
+The output is not sorted by correlation!
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+.Bl -item
+.It
+Search for the original image of
+.Ar thumbnail.jpg
+in
+.Ar /home/user
+and sort the resulting output by correlation, highest match first.
+.Pp
+.Dl findimage /home/user thumbnail.jpg | sort -r
+.El
+.Sh SEE ALSO
+.Xr sort 1
