@@ -2,7 +2,7 @@
 
 PACKAGE = findimage
 VERSION = 0.0.0
-DIST = Makefile ${PACKAGE}.c ${PACKAGE}.1 unused.h LICENSE
+DIST = Makefile ${PACKAGE}.c ${PACKAGE}.1 unused.h LICENSE CHANGELOG
 
 PREFIX ?= /usr/local
 CC ?= gcc
