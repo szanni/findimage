@@ -1,6 +1,7 @@
 /*--
  * Copyright (c) 2013, Angelo Haller <angelo@szanni.org>
  * All rights reserved.
+
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,8 +29,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <opencv2/highgui/highgui_c.h>
-#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+
+using namespace cv;
 
 #include "unused.h"
 
@@ -40,36 +44,29 @@ struct findimage_result
   int y;
 };
 
-CvMat *object;
+Mat object;
 
 int
-findimage_match (CvMat *object, const char *file, struct findimage_result *result)
+findimage_match (Mat object, const char *file, struct findimage_result *result)
 {
-  CvMat *scene = cvLoadImageM (file, CV_LOAD_IMAGE_COLOR);
-  if (scene == NULL)
+  Mat scene = imread (file, IMREAD_COLOR);
+  if (!scene.data)
     return 1;
 
   // object has to be smaller than scene
-  if (scene->cols < object->cols || scene->rows < object->rows)
-    {
-      cvReleaseMat (&scene);
+  if (scene.cols < object.cols || scene.rows < object.rows)
       return 1;
-    }
 
-  int result_cols =  scene->cols - object->cols + 1;
-  int result_rows = scene->rows - object->rows + 1;
-  CvMat *results = cvCreateMat (result_rows, result_cols, CV_32F);
+  int result_cols =  scene.cols - object.cols + 1;
+  int result_rows = scene.rows - object.rows + 1;
+  Mat results = Mat (result_rows, result_cols, CV_32F);
 
-  cvMatchTemplate (scene, object, results, CV_TM_CCORR_NORMED);
-
-  cvReleaseMat (&scene);
+  matchTemplate (scene, object, results, TM_CCORR_NORMED);
 
   double minVal, maxVal, matchVal;
-  CvPoint minLoc, maxLoc, matchLoc;
+  Point minLoc, maxLoc, matchLoc;
 
-  cvMinMaxLoc (results, &minVal, &maxVal, &minLoc, &maxLoc, NULL);
-
-  cvReleaseMat (&results);
+  minMaxLoc (results, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
 
   matchVal = maxVal;
   matchLoc = maxLoc;
@@ -105,31 +102,20 @@ main (int argc, char *argv[])
   if (argc != 3)
     {
       printf ("Usage: %s path object\n", argv[0]);
-      rv = EXIT_FAILURE;
-      goto out;
+      return EXIT_FAILURE;
     }
 
-  object = cvLoadImageM (argv[2], CV_LOAD_IMAGE_COLOR);
-  if (object == NULL)
-    {
-      rv = EXIT_FAILURE;
-      goto out;
-    }
+  object = imread (argv[2], IMREAD_COLOR);
+  if (!object.data)
+      return EXIT_FAILURE;
 
   char *path = realpath (argv[1], NULL);
   if (path == NULL)
-    {
-      rv = EXIT_FAILURE;
-      goto free_object;
-    }
+      return EXIT_FAILURE;
 
   nftw (path, process_file, 10, 0);
   free (path);
 
-free_object:
-  cvReleaseMat (&object);
-
-out:
   return rv;
 }
 
