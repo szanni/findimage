@@ -1,7 +1,7 @@
 .PHONY: all install dist clean
 
 PACKAGE = findimage
-VERSION = 0.0.0
+VERSION = 0.1.0
 DIST = Makefile ${PACKAGE}.cpp ${PACKAGE}.1 unused.h LICENSE CHANGELOG
 
 PREFIX ?= /usr/local
