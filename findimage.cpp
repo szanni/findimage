@@ -39,83 +39,80 @@ using namespace cv;
 
 struct findimage_result
 {
-  double correlation;
-  int x;
-  int y;
+	double correlation;
+	int x;
+	int y;
 };
 
 Mat object;
 
 int
-findimage_match (Mat object, const char *file, struct findimage_result *result)
+findimage_match(Mat object, const char *file, struct findimage_result *result)
 {
-  Mat scene = imread (file, IMREAD_COLOR);
-  if (!scene.data)
-    return 1;
+	Mat scene = imread(file, IMREAD_COLOR);
+	if (!scene.data)
+		return 1;
 
-  // object has to be smaller than scene
-  if (scene.cols < object.cols || scene.rows < object.rows)
-      return 1;
+	// object has to be smaller than scene
+	if (scene.cols < object.cols || scene.rows < object.rows)
+		return 1;
 
-  int result_cols =  scene.cols - object.cols + 1;
-  int result_rows = scene.rows - object.rows + 1;
-  Mat results = Mat (result_rows, result_cols, CV_32F);
+	int result_cols =  scene.cols - object.cols + 1;
+	int result_rows = scene.rows - object.rows + 1;
+	Mat results = Mat(result_rows, result_cols, CV_32F);
 
-  matchTemplate (scene, object, results, TM_CCORR_NORMED);
+	matchTemplate(scene, object, results, TM_CCORR_NORMED);
 
-  double minVal, maxVal, matchVal;
-  Point minLoc, maxLoc, matchLoc;
+	double minVal, maxVal, matchVal;
+	Point minLoc, maxLoc, matchLoc;
 
-  minMaxLoc (results, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
+	minMaxLoc(results, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
 
-  matchVal = maxVal;
-  matchLoc = maxLoc;
+	matchVal = maxVal;
+	matchLoc = maxLoc;
 
-  result->correlation = matchVal;
-  result->x = matchLoc.x;
-  result->y = matchLoc.y;
+	result->correlation = matchVal;
+	result->x = matchLoc.x;
+	result->y = matchLoc.y;
 
-  return 0;
+	return 0;
 }
 
 static int
-process_file (const char *path, const struct stat * UNUSED(st), int flag, struct FTW * UNUSED(ftw))
+process_file(const char *path, const struct stat * UNUSED(st), int flag, struct FTW * UNUSED(ftw))
 {
-  if (flag != FTW_F)
-    return 0;
+	if (flag != FTW_F)
+		return 0;
 
-  struct findimage_result result;
+	struct findimage_result result;
 
-  if (!findimage_match (object, path, &result))
-    {
-      printf ("%.5f\t%d:%d\t%s\n", result.correlation, result.x, result.y, path);
-    }
+	if (!findimage_match(object, path, &result))
+		printf("%.5f\t%d:%d\t%s\n", result.correlation, result.x, result.y, path);
 
-  return 0;
+	return 0;
 }
 
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
-  int rv = EXIT_SUCCESS;
+	int rv = EXIT_SUCCESS;
 
-  if (argc != 3)
-    {
-      printf ("Usage: %s path object\n", argv[0]);
-      return EXIT_FAILURE;
-    }
+	if (argc != 3) {
+		printf ("Usage: %s path object\n", argv[0]);
+		return EXIT_FAILURE;
+	}
 
-  object = imread (argv[2], IMREAD_COLOR);
-  if (!object.data)
-      return EXIT_FAILURE;
+	object = imread(argv[2], IMREAD_COLOR);
+	if (!object.data)
+		return EXIT_FAILURE;
 
-  char *path = realpath (argv[1], NULL);
-  if (path == NULL)
-      return EXIT_FAILURE;
+	char *path = realpath(argv[1], NULL);
+	if (path == NULL)
+		return EXIT_FAILURE;
 
-  nftw (path, process_file, 10, 0);
-  free (path);
+	nftw(path, process_file, 10, 0);
+	free(path);
 
-  return rv;
+	return rv;
 }
 
