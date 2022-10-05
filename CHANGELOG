@@ -1,3 +1,7 @@
+0.1.1
+=====
+* Update LDFLAGS as upstream keeps breaking them
+
 0.1.0
 =====
 * Upgrade to OpenCV 4

@@ -1,7 +1,7 @@
 .PHONY: all install dist clean
 
 PACKAGE = findimage
-VERSION = 0.1.0
+VERSION = 0.1.1
 DIST = Makefile ${PACKAGE}.cpp ${PACKAGE}.1 unused.h LICENSE CHANGELOG
 
 PREFIX ?= /usr/local
@@ -11,7 +11,7 @@ CXXFLAGS += -Wall -Wextra -pedantic
 CXXFLAGS += `pkg-config --cflags 'opencv4 >= 4.0'`
 #LDFLAGS += `pkg-config --libs 'opencv4 >= 4.0'`
 # Can not use pkg-config --libs here as it pulls in all optional dependencies, too.
-LDFLAGS += -lIlmImf -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_core
+LDFLAGS += -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_core
 
 all: ${PACKAGE}
 
